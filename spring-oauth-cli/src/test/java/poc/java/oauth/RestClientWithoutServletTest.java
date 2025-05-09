@@ -17,7 +17,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.web.client.RestClient;
@@ -39,6 +38,7 @@ class RestClientWithoutServletTest {
     private static final String[] SCOPE = {"openid", "profile"};
     private static final String CLIENT_NAME = "name-for-poc-java-client-test";
     private static final String TOKEN_ENDPOINT = "http://localhost:9000/oauth2/token";
+    private static final String AUTHORIZATION_ENDPOINT = "http://localhost:9000/oauth2/authorize";
 
     WireMockServer wireMockServer;
     final String reponseBody = "Hello";
@@ -119,7 +119,8 @@ class RestClientWithoutServletTest {
                             .clientId(CLIENT_ID)
                             .clientSecret(CLIENT_SECRET)
                             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                            .authorizationUri(AUTHORIZATION_ENDPOINT)
                             .redirectUri(redirectUri)
                             .scope(SCOPE)
                             .tokenUri(TOKEN_ENDPOINT)

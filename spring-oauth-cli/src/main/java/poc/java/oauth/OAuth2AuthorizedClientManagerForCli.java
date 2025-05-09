@@ -14,8 +14,13 @@ public record OAuth2AuthorizedClientManagerForCli(AuthorizedClientServiceOAuth2A
                                                   Map<String, UserDetails> usersCredentialsByRegistrationIds) implements OAuth2AuthorizedClientManager {
 
     public OAuth2AuthorizedClientManagerForCli {
-        delegate.setAuthorizedClientProvider(OAuth2AuthorizedClientProviderBuilder.builder()
+        OAuth2AuthorizedClientProviderBuilder oAuth2AuthorizedClientProviderBuilder = OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials(builder -> builder.accessTokenResponseClient(new RestClientClientCredentialsTokenResponseClient()))
+                .provider(new MyAuthorizationCodeOAuth2AuthorizedClientProvider(null));
+        // this.builders.computeIfAbsent(AuthorizationCodeOAuth2AuthorizedClientProvider.class, (k) -> new AuthorizationCodeGrantBuilder());
+        // this.builders.computeIfAbsent(provider.getClass(), (k) -> () -> provider);
+
+        delegate.setAuthorizedClientProvider(oAuth2AuthorizedClientProviderBuilder
                 .build());
         delegate.setContextAttributesMapper(new AuthorizedClientServiceOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
     }
@@ -44,9 +49,9 @@ public record OAuth2AuthorizedClientManagerForCli(AuthorizedClientServiceOAuth2A
 
     public OAuth2AuthorizedClientManagerForCli(ClientRegistrationRepository clientRegistrationRepository, RegistrationsConfiguration registrations) {
         this(new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository,
-                new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository)),
+                        new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository)),
                 registrations.registrations().entrySet().stream()
-                        .collect(Collectors.toMap(e -> e.getValue().getRegistrationId(),Map.Entry::getKey)));
+                        .collect(Collectors.toMap(e -> e.getValue().getRegistrationId(), Map.Entry::getKey)));
     }
 
     @Override
