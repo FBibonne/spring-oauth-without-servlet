@@ -1,0 +1,25 @@
+spring:
+  main:
+    web-application-type: none
+  shell:
+    interactive:
+      enabled: true
+  security:
+     oauth2:
+       client:
+         registration:
+           cli-registration:
+             client-id: "poc-java-client-test"
+             authorization-grant-type: "code"
+             provider: spring-auth-server
+             scope: ["openid", "profile"]
+         provider:
+           spring-auth-server:
+             issuer-uri: "http://localhost:9000"
+
+poc:
+  java:
+    oauth:
+      restclient:
+        registration:
+          id: cli-registration

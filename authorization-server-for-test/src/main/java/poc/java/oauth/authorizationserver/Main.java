@@ -1,4 +1,4 @@
-package poc.java.oauthcli;
+package poc.java.oauth.authorizationserver;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

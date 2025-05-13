@@ -2,7 +2,7 @@ package poc.java.oauth;
 
 import java.net.URLConnection;
 
-public record EmbededUserAgentWithSpnegoAuthent() implements UserAgent {
+record EmbededUserAgentWithSpnegoAuthent() implements UserAgent {
     public static UserAgent instance() {
         configureForSpnego();
         return new EmbededUserAgentWithSpnegoAuthent();

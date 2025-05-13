@@ -4,13 +4,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
 
@@ -18,9 +20,9 @@ import static org.springframework.security.oauth2.client.web.client.RequestAttri
 public class RestClientConfiguration {
 
     @Bean
-    public OAuth2ClientHttpRequestInterceptor buildRequestInterceptor(RegistrationsConfiguration registrations) {
-        ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(new ArrayList<>(registrations.registrations().values()));
-        OAuth2AuthorizedClientManager authorizedClientManager = new OAuth2AuthorizedClientManagerForCli(clientRegistrationRepository, registrations);
+    public OAuth2ClientHttpRequestInterceptor buildRequestInterceptor(Collection<ClientRegistration> registrations) {
+        ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(List.copyOf(registrations));
+        OAuth2AuthorizedClientManager authorizedClientManager = new OAuth2AuthorizedClientManagerForCli(clientRegistrationRepository);
         OAuth2ClientHttpRequestInterceptor oAuth2ClientHttpRequestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
         oAuth2ClientHttpRequestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
         return oAuth2ClientHttpRequestInterceptor;

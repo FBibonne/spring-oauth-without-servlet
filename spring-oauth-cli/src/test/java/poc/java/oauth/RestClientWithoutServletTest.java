@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -112,9 +113,8 @@ class RestClientWithoutServletTest {
         }
 
         @Bean
-        RegistrationsConfiguration registrationsConfiguration() {
-            return new RegistrationsConfiguration(Map.of(
-                    new User("owner_user", "owner_password", List.of()),
+        Collection<ClientRegistration> registrationsConfiguration() {
+            return List.of(
                     ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_ID)
                             .clientId(CLIENT_ID)
                             .clientSecret(CLIENT_SECRET)
@@ -125,7 +125,7 @@ class RestClientWithoutServletTest {
                             .scope(SCOPE)
                             .tokenUri(TOKEN_ENDPOINT)
                             .clientName(CLIENT_NAME).build()
-            ));
+            );
         }
 
     }
