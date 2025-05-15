@@ -11,6 +11,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +62,14 @@ public record CliCommand(String id, OperationMethod operationMethod, RestClient 
         }
         var id = operation.getOperationId();
         return Optional.of(new CliCommand(id, operationMethod, UriComponentsBuilder.fromUri(serverUri).path(uriSuffix),
-                operation.getParameters().stream().map(UrlParameter::new).collect(Collectors.toSet()), restCLientBuilder));
+                operationParametersToUrlParameters(operation.getParameters()), restCLientBuilder));
+    }
+
+    private static Set<UrlParameter> operationParametersToUrlParameters(List<Parameter> parameters) {
+        if (parameters == null){
+            return Set.of();
+        }
+        return parameters.stream().map(UrlParameter::new).collect(Collectors.toSet());
     }
 
     record UrlParameter(String name, boolean required) {

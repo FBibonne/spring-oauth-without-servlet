@@ -21,6 +21,7 @@ import poc.java.oauth.EnableRestClientWithoutServlet;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Collection;
 
 import static org.springframework.shell.command.CommandRegistration.OptionArity.EXACTLY_ONE;
@@ -43,9 +44,8 @@ public class CliApplication {
     }
 
     @Bean
-    OpenAPI openAPI(@Value("${poc.java.oauth.openapi.spec.resource}")String openapiSpecResource, ResourceLoader resourceLoader) throws IOException {
-        Resource resource = resourceLoader.getResource(openapiSpecResource);
-        return (new OpenAPIV3Parser()).read(resource.getURI().toString());
+    OpenAPI openAPI(@Value("${poc.java.oauth.openapi.spec.resource}")String openapiSpecResource)  {
+        return (new OpenAPIV3Parser()).read(Path.of(openapiSpecResource).toUri().toString());
     }
 
 
