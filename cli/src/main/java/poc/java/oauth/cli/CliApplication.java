@@ -10,8 +10,6 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2Clien
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.command.CommandResolver;
@@ -19,7 +17,6 @@ import org.springframework.shell.command.annotation.CommandScan;
 import org.springframework.web.client.RestClient;
 import poc.java.oauth.EnableRestClientWithoutServlet;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;

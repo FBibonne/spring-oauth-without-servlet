@@ -4,6 +4,8 @@ spring:
   shell:
     interactive:
       enabled: true
+    noninteractive:
+      enabled: false
   security:
      oauth2:
        client:
@@ -16,7 +18,9 @@ spring:
          provider:
            spring-auth-server:
              issuer-uri: "http://localhost:9000"
-
+logging:
+  file:
+    path: target/spring-shell.log
 poc:
   java:
     oauth:
