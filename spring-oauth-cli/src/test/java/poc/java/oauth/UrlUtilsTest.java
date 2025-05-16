@@ -2,6 +2,7 @@ package poc.java.oauth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.util.MultiValueMap;
+import poc.java.oauth.authorizationservice.UrlUtils;
 
 import java.util.List;
 import java.util.Map;

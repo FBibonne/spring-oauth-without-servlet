@@ -1,4 +1,4 @@
-package poc.java.oauth;
+package poc.java.oauth.authorizationservice;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;

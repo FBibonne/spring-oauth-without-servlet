@@ -1,4 +1,4 @@
-package poc.java.oauth;
+package poc.java.oauth.clientrepository;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;

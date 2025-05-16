@@ -1,6 +1,5 @@
-package poc.java.oauth;
+package poc.java.oauth.clientmanager;
 
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -9,19 +8,20 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
+import poc.java.oauth.NativeCliAuthorizationService;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-public record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, AuthorizationService authorizationService) implements OAuth2AuthorizedClientProvider {
+record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, NativeCliAuthorizationService nativeCliAuthorizationService) implements OAuth2AuthorizedClientProvider {
 
-    public MyAuthorizationCodeOAuth2AuthorizedClientProvider{
+    MyAuthorizationCodeOAuth2AuthorizedClientProvider{
         clock = Clock.systemUTC();
         clockSkew = Duration.ofSeconds(60);
     }
 
-    public MyAuthorizationCodeOAuth2AuthorizedClientProvider(AuthorizationService authorizationService){
+    MyAuthorizationCodeOAuth2AuthorizedClientProvider(NativeCliAuthorizationService authorizationService){
         this(null, null, authorizationService);
     }
 
@@ -37,13 +37,15 @@ Returns:
 the OAuth2AuthorizedClient or null if authorization is not supported for the specified client
          */
         Assert.notNull(context, "context cannot be null");
-        if (! AuthorizationGrantType.AUTHORIZATION_CODE.equals(
-                context.getClientRegistration().getAuthorizationGrantType())
+        if ((! AuthorizationGrantType.AUTHORIZATION_CODE.equals(
+                context.getClientRegistration().getAuthorizationGrantType()))
                 || context.getAuthorizedClient() != null
         ){
             // negation of condition in org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider.authorize
             return null;
         }
+
+        //
 
         ClientRegistration clientRegistration = context.getClientRegistration();
 
@@ -54,7 +56,7 @@ the OAuth2AuthorizedClient or null if authorization is not supported for the spe
     }
 
     private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration) {
-        return authorizationService.getAccessToken(clientRegistration);
+        return nativeCliAuthorizationService.getAccessToken(clientRegistration);
     }
 
     private boolean hasTokenExpired(OAuth2Token token) {

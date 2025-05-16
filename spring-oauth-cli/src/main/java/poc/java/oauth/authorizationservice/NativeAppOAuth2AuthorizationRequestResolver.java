@@ -1,4 +1,4 @@
-package poc.java.oauth;
+package poc.java.oauth.authorizationservice;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.function.Consumer;
 
-public record NativeAppOAuth2AuthorizationRequestResolver(
+record NativeAppOAuth2AuthorizationRequestResolver(
         Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
 
     private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
@@ -73,7 +73,7 @@ public record NativeAppOAuth2AuthorizationRequestResolver(
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
             // @formatter:off
             OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
-                    .attributes((attrs) ->
+                    .attributes(attrs ->
                             attrs.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
             // @formatter:on
             if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
@@ -111,10 +111,11 @@ public record NativeAppOAuth2AuthorizationRequestResolver(
         try {
             String nonce = DEFAULT_SECURE_KEY_GENERATOR.generateKey();
             String nonceHash = createHash(nonce);
-            builder.attributes((attrs) -> attrs.put(OidcParameterNames.NONCE, nonce));
-            builder.additionalParameters((params) -> params.put(OidcParameterNames.NONCE, nonceHash));
+            builder.attributes(attrs -> attrs.put(OidcParameterNames.NONCE, nonce));
+            builder.additionalParameters(params -> params.put(OidcParameterNames.NONCE, nonceHash));
         }
-        catch (NoSuchAlgorithmException ex) {
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 

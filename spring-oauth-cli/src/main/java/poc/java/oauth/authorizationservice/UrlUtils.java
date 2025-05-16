@@ -1,4 +1,4 @@
-package poc.java.oauth;
+package poc.java.oauth.authorizationservice;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
