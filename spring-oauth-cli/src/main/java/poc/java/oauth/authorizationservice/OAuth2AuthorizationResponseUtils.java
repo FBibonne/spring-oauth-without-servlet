@@ -2,42 +2,13 @@ package poc.java.oauth.authorizationservice;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
-import java.util.Map;
 
 // Copy of org.springframework.security.oauth2.client.web.OAuth2AuthorizationResponseUtils
 final class OAuth2AuthorizationResponseUtils {
 
     private OAuth2AuthorizationResponseUtils() {
-    }
-
-    static MultiValueMap<String, String> toMultiMap(Map<String, String[]> map) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>(map.size());
-        map.forEach((key, values) -> {
-            if (values.length > 0) {
-                for (String value : values) {
-                    params.add(key, value);
-                }
-            }
-        });
-        return params;
-    }
-
-    static boolean isAuthorizationResponse(MultiValueMap<String, String> request) {
-        return isAuthorizationResponseSuccess(request) || isAuthorizationResponseError(request);
-    }
-
-    static boolean isAuthorizationResponseSuccess(MultiValueMap<String, String> request) {
-        return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.CODE))
-                && StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
-    }
-
-    static boolean isAuthorizationResponseError(MultiValueMap<String, String> request) {
-        return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.ERROR))
-                && StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
     }
 
     static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri) {

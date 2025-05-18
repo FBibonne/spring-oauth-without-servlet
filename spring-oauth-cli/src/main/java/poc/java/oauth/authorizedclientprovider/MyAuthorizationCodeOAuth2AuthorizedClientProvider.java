@@ -1,5 +1,7 @@
-package poc.java.oauth.clientmanager;
+package poc.java.oauth.authorizedclientprovider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -14,14 +16,17 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, NativeCliAuthorizationService nativeCliAuthorizationService) implements OAuth2AuthorizedClientProvider {
+public record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, NativeCliAuthorizationService nativeCliAuthorizationService) implements OAuth2AuthorizedClientProvider {
 
-    MyAuthorizationCodeOAuth2AuthorizedClientProvider{
+    private static final Logger log = LoggerFactory.getLogger(MyAuthorizationCodeOAuth2AuthorizedClientProvider.class);
+
+
+    public MyAuthorizationCodeOAuth2AuthorizedClientProvider{
         clock = Clock.systemUTC();
         clockSkew = Duration.ofSeconds(60);
     }
 
-    MyAuthorizationCodeOAuth2AuthorizedClientProvider(NativeCliAuthorizationService authorizationService){
+    public MyAuthorizationCodeOAuth2AuthorizedClientProvider(NativeCliAuthorizationService authorizationService){
         this(null, null, authorizationService);
     }
 
@@ -39,13 +44,15 @@ the OAuth2AuthorizedClient or null if authorization is not supported for the spe
         Assert.notNull(context, "context cannot be null");
         if ((! AuthorizationGrantType.AUTHORIZATION_CODE.equals(
                 context.getClientRegistration().getAuthorizationGrantType()))
-                || context.getAuthorizedClient() != null
+                //Unlike AuthorizationCodeOAuth2AuthorizedClientProvider does, we test token expiration like in others OAuth2AuthorizedClientProviders
+                || ( context.getAuthorizedClient() != null && !hasTokenExpired(context.getAuthorizedClient().getAccessToken()))
         ){
             // negation of condition in org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider.authorize
+            log.debug("yet an authorized client in authorization context");
             return null;
         }
 
-        //
+        log.debug("No authorized client in authorization context : start authorization");
 
         ClientRegistration clientRegistration = context.getClientRegistration();
 
@@ -60,7 +67,7 @@ the OAuth2AuthorizedClient or null if authorization is not supported for the spe
     }
 
     private boolean hasTokenExpired(OAuth2Token token) {
-        Instant tokenExpiresAt = token.getExpiresAt();
+        Instant tokenExpiresAt = token ==null ? null :  token.getExpiresAt();
         return tokenExpiresAt==null || this.clock.instant().isAfter(tokenExpiresAt.minus(this.clockSkew));
     }
 

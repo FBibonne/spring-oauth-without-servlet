@@ -12,7 +12,7 @@ import poc.java.oauth.NativeCliAuthorizationService;
 public class NativeCliAuthorizationServiceConfiguration {
 
     @Bean
-    public NativeCliAuthorizationService nativeCliAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) throws Exception {
+    public NativeCliAuthorizationService nativeCliAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) {
         return new NativeAppFlowAuthorizationService(authenticationManager, userAgent);
 
     }

@@ -1,5 +1,7 @@
 package poc.java.oauth.authorizationservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -22,6 +24,8 @@ import java.util.function.Consumer;
 record NativeAppOAuth2AuthorizationRequestResolver(
         Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
 
+    private static final Logger log = LoggerFactory.getLogger(NativeAppOAuth2AuthorizationRequestResolver.class);
+
     private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
             .withPkce();
     private static final StringKeyGenerator DEFAULT_SECURE_KEY_GENERATOR = new Base64StringKeyGenerator(
@@ -29,14 +33,14 @@ record NativeAppOAuth2AuthorizationRequestResolver(
     private static final StringKeyGenerator DEFAULT_STATE_GENERATOR = new Base64StringKeyGenerator(
             Base64.getUrlEncoder());
 
-    public NativeAppOAuth2AuthorizationRequestResolver{
-        if (authorizationRequestCustomizer==null) {
-            authorizationRequestCustomizer = (customizer) -> {
+    public NativeAppOAuth2AuthorizationRequestResolver {
+        if (authorizationRequestCustomizer == null) {
+            authorizationRequestCustomizer = _ -> {
             };
         }
     }
 
-    public NativeAppOAuth2AuthorizationRequestResolver(){
+    public NativeAppOAuth2AuthorizationRequestResolver() {
         this(null);
     }
 
@@ -44,6 +48,7 @@ record NativeAppOAuth2AuthorizationRequestResolver(
     public OAuth2AuthorizationRequest resolve(ClientRegistration clientRegistration) {
         // org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver#resolve(HttpServletRequest, java.lang.String, java.lang.String)
 
+        log.debug("Building OAuth2AuthorizationRequest from client registration");
         OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 
         String redirectUriStr = expandRedirectUri(clientRegistration);
@@ -95,17 +100,16 @@ record NativeAppOAuth2AuthorizationRequestResolver(
     }
 
     /**
-     *
      * org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver#applyNonce(org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest.Builder)
-     *
+     * <p>
      * Creates nonce and its hash for use in OpenID Connect 1.0 Authentication Requests.
-     * @param builder where the {@link OidcParameterNames#NONCE} and hash is stored for
-     * the authentication request
      *
-     * @since 5.2
+     * @param builder where the {@link OidcParameterNames#NONCE} and hash is stored for
+     *                the authentication request
      * @see <a target="_blank" href=
      * "https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.
      * Authentication Request</a>
+     * @since 5.2
      */
     private static void applyNonce(OAuth2AuthorizationRequest.Builder builder) {
         try {
@@ -113,8 +117,7 @@ record NativeAppOAuth2AuthorizationRequestResolver(
             String nonceHash = createHash(nonce);
             builder.attributes(attrs -> attrs.put(OidcParameterNames.NONCE, nonce));
             builder.additionalParameters(params -> params.put(OidcParameterNames.NONCE, nonceHash));
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
