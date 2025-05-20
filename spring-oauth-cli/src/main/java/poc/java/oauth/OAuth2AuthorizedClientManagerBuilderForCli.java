@@ -14,7 +14,7 @@ public class OAuth2AuthorizedClientManagerBuilderForCli {
 
     private OAuth2AuthorizedClientManagerBuilderForCli(){}
 
-    public static OAuth2AuthorizedClientManager buildFrom(Collection<ClientRegistration> registrations, NativeCliAuthorizationService authorizationService){
+    public static OAuth2AuthorizedClientManager buildFrom(Collection<ClientRegistration> registrations, CustomOAuth2AuthorizationCodeAuthorizationService authorizationService){
         ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(List.copyOf(registrations));
         AuthorizedClientServiceOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository,
                 new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository));

@@ -6,14 +6,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
-import poc.java.oauth.NativeCliAuthorizationService;
+import poc.java.oauth.CustomOAuth2AuthorizationCodeAuthorizationService;
 
 @Configuration
-public class NativeCliAuthorizationServiceConfiguration {
+public class AuthorizationServiceConfiguration {
 
     @Bean
-    public NativeCliAuthorizationService nativeCliAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) {
-        return new NativeAppFlowAuthorizationService(authenticationManager, userAgent);
+    public CustomOAuth2AuthorizationCodeAuthorizationService customOAuth2AuthorizationCodeAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) {
+        return new DefaultCustomOAuth2AuthorizationCodeAuthorizationService(authenticationManager, userAgent);
 
     }
 

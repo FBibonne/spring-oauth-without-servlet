@@ -12,19 +12,20 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.util.MultiValueMap;
-import poc.java.oauth.NativeCliAuthorizationService;
+import poc.java.oauth.CustomOAuth2AuthorizationCodeAuthorizationService;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Clock;
 
-public record NativeAppFlowAuthorizationService(AuthenticationManager authenticationManager,
-                                                NativeAppOAuth2AuthorizationRequestResolver auth2AuthorizationRequestResolver,
-                                                UserAgent userAgent) implements NativeCliAuthorizationService {
+public record DefaultCustomOAuth2AuthorizationCodeAuthorizationService(AuthenticationManager authenticationManager,
+                                                                       CustomOAuth2AuthorizationRequestResolver auth2AuthorizationRequestResolver,
+                                                                       UserAgent userAgent, Clock clock) implements CustomOAuth2AuthorizationCodeAuthorizationService {
 
-    private static final Logger log = LoggerFactory.getLogger(NativeAppFlowAuthorizationService.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultCustomOAuth2AuthorizationCodeAuthorizationService.class);
 
-    public NativeAppFlowAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) {
-        this(authenticationManager, new NativeAppOAuth2AuthorizationRequestResolver(), userAgent);
+    public DefaultCustomOAuth2AuthorizationCodeAuthorizationService(AuthenticationManager authenticationManager, UserAgent userAgent) {
+        this(authenticationManager, new CustomOAuth2AuthorizationRequestResolver(), userAgent, Clock.systemUTC());
     }
 
     @Override
@@ -50,6 +51,7 @@ public record NativeAppFlowAuthorizationService(AuthenticationManager authentica
             OAuth2AccessToken accessToken = authenticationResult.getAccessToken();
             log.debug("Got access token valid until {} with refresh token {}", accessToken.getExpiresAt(), authenticationResult.getRefreshToken());
             return OAuth2AccessTokenResponse.withToken(accessToken.getTokenValue())
+                    .expiresIn(clock.instant().until(accessToken.getExpiresAt()).getSeconds())
                     .refreshToken(authenticationResult.getRefreshToken().getTokenValue())
                     .tokenType(accessToken.getTokenType())
                     .scopes(accessToken.getScopes())

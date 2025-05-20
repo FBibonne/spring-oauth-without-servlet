@@ -10,13 +10,13 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
-import poc.java.oauth.NativeCliAuthorizationService;
+import poc.java.oauth.CustomOAuth2AuthorizationCodeAuthorizationService;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-public record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, NativeCliAuthorizationService nativeCliAuthorizationService) implements OAuth2AuthorizedClientProvider {
+public record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Duration clockSkew, CustomOAuth2AuthorizationCodeAuthorizationService customOAuth2AuthorizationCodeAuthorizationService) implements OAuth2AuthorizedClientProvider {
 
     private static final Logger log = LoggerFactory.getLogger(MyAuthorizationCodeOAuth2AuthorizedClientProvider.class);
 
@@ -26,8 +26,8 @@ public record MyAuthorizationCodeOAuth2AuthorizedClientProvider(Clock clock, Dur
         clockSkew = Duration.ofSeconds(60);
     }
 
-    public MyAuthorizationCodeOAuth2AuthorizedClientProvider(NativeCliAuthorizationService authorizationService){
-        this(null, null, authorizationService);
+    public MyAuthorizationCodeOAuth2AuthorizedClientProvider(CustomOAuth2AuthorizationCodeAuthorizationService customOAuth2AuthorizationCodeAuthorizationService){
+        this(null, null, customOAuth2AuthorizationCodeAuthorizationService);
     }
 
     @Override
@@ -63,7 +63,7 @@ the OAuth2AuthorizedClient or null if authorization is not supported for the spe
     }
 
     private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration) {
-        return nativeCliAuthorizationService.getAccessToken(clientRegistration);
+        return customOAuth2AuthorizationCodeAuthorizationService.getAccessToken(clientRegistration);
     }
 
     private boolean hasTokenExpired(OAuth2Token token) {

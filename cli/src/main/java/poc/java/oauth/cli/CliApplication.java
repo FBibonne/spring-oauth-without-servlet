@@ -2,6 +2,8 @@ package poc.java.oauth.cli;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +12,9 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2Clien
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.command.CommandResolver;
@@ -17,9 +22,12 @@ import org.springframework.shell.command.annotation.CommandScan;
 import org.springframework.web.client.RestClient;
 import poc.java.oauth.EnableRestClientWithoutServlet;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import static org.springframework.shell.command.CommandRegistration.OptionArity.EXACTLY_ONE;
 import static org.springframework.shell.command.CommandRegistration.OptionArity.ZERO_OR_ONE;
@@ -29,6 +37,8 @@ import static org.springframework.shell.command.CommandRegistration.OptionArity.
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 @EnableRestClientWithoutServlet
 public class CliApplication {
+
+    private static Logger log = LoggerFactory.getLogger(CliApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(CliApplication.class, args);
@@ -49,6 +59,10 @@ public class CliApplication {
     @Bean
     CommandResolver commands(OpenAPI openAPI, RestClient.Builder restCLientBuilder) {
         final URI baseUri = URI.create(openAPI.getServers().getFirst().getUrl());
+        restCLientBuilder.requestInterceptor((HttpRequest request, byte[] body, ClientHttpRequestExecution execution)-> {
+            log.debug("RestClient is executing request {} {}", request.getMethod(), request.getURI());
+            return execution.execute(request, body);
+        });
         return () -> openAPI.getPaths().entrySet().stream()
                 .flatMap(entryPath -> CliCommand.fromPath(entryPath, baseUri, restCLientBuilder))
                 .map(cliCommand -> {
@@ -61,6 +75,15 @@ public class CliApplication {
                     return builder.build();
                 })
                 .toList();
+    }
+
+    @Bean
+    CommandResolver timeCommand(){
+        return () -> List.of(CommandRegistration.builder()
+                .command("time")
+                .withTarget().function(_ -> LocalDateTime.now())
+                .and().build()
+        );
     }
 
 

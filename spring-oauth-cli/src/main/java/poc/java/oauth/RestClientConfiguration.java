@@ -17,7 +17,7 @@ import static org.springframework.security.oauth2.client.web.client.RequestAttri
 public class RestClientConfiguration {
 
     @Bean
-    public OAuth2ClientHttpRequestInterceptor buildRequestInterceptor(Collection<ClientRegistration> registrations, NativeCliAuthorizationService authorizationService) {
+    public OAuth2ClientHttpRequestInterceptor buildRequestInterceptor(Collection<ClientRegistration> registrations, CustomOAuth2AuthorizationCodeAuthorizationService authorizationService) {
 
         OAuth2AuthorizedClientManager authorizedClientManager = OAuth2AuthorizedClientManagerBuilderForCli.buildFrom(registrations, authorizationService);
         OAuth2ClientHttpRequestInterceptor oAuth2ClientHttpRequestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);

@@ -21,10 +21,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.function.Consumer;
 
-record NativeAppOAuth2AuthorizationRequestResolver(
+record CustomOAuth2AuthorizationRequestResolver(
         Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
 
-    private static final Logger log = LoggerFactory.getLogger(NativeAppOAuth2AuthorizationRequestResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(CustomOAuth2AuthorizationRequestResolver.class);
 
     private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
             .withPkce();
@@ -33,14 +33,14 @@ record NativeAppOAuth2AuthorizationRequestResolver(
     private static final StringKeyGenerator DEFAULT_STATE_GENERATOR = new Base64StringKeyGenerator(
             Base64.getUrlEncoder());
 
-    public NativeAppOAuth2AuthorizationRequestResolver {
+    public CustomOAuth2AuthorizationRequestResolver {
         if (authorizationRequestCustomizer == null) {
             authorizationRequestCustomizer = _ -> {
             };
         }
     }
 
-    public NativeAppOAuth2AuthorizationRequestResolver() {
+    public CustomOAuth2AuthorizationRequestResolver() {
         this(null);
     }
 
