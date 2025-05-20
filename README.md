@@ -16,12 +16,9 @@ generated from the Open API specification of the REST API.
     - authenticates resource owner to get authorization code with SPNEGO (using JVM feature to call native GSS API) :
       class EmbededUserAgentWithSpnegoAuthent
     - the OAuth2ClientHttpRequestInterceptor is plugged on a OAuth2AuthorizedClientManager which authorizes requests
-      using
-      a custom AuthorizationCodeOAuth2AuthorizedClientProvider. The custom
-      AuthorizationCodeOAuth2AuthorizedClientProvider
+      using a custom AuthorizationCodeOAuth2AuthorizedClientProvider. The custom AuthorizationCodeOAuth2AuthorizedClientProvider
       authorizes clients with an oauth2 authorization code flow with the help of Spring Security derived classes which
-      do not
-      depend on a servlet context
+      do not depend on a servlet context
 
 ## Classes derived from Spring Security
 
@@ -39,6 +36,30 @@ be rewritten totally or partially :
 
 No test available for the moment : a full test would require to execute the CLI in a context with a native GSS api plugged 
 to a controlled kerberos server itself pluged to an authorization server. Hard work.
+
+## Authentication with SPNEGO
+
+Class `EmbededUserAgentWithSpnegoAuthent` authenticates user calling the authorization endpoint executing the authorization request with 
+JDK builtin HTTP client which authenticates user using a native SPNEGO token. Native SPNEGO token is a kerberos token provided by the
+native (the OS one, not the java one) GSS API. The following diagram describes the authentication sequence :
+
+```mermaid
+sequenceDiagram
+    participant A as EmbededUserAgentWithSpnegoAuthent
+    participant GSS as Native GSS API
+    participant JVM
+    participant Keycloak
+    A ->> JVM: GET ...openid-connect/auth?response_type=code...
+    JVM ->> Keycloak: GET ...openid-connect/auth?response_type=code...
+    Keycloak ->> JVM: HTTP/1.1 401 Unauthorized <br/> WWW-Authenticate: Negotiate
+    JVM ->> GSS: Kerberos token ?
+    GSS ->> JVM : <TOKEN>
+    JVM ->> Keycloak: GET ...openid-connect/auth?response_type=code... <br/> Authorization: Negotiate <TOKEN>
+    Keycloak ->> JVM: HTTP/1.1 302 FOUND <br/> Location: https://redirect.uri.host/...?...code=...
+    JVM ->> A: HTTP/1.1 302 FOUND <br/> Location: https://redirect.uri.host/...?...code=...
+```
+
+NB : the authorization server is named by its implementation : Keycloak
 
 ## Demo
 
